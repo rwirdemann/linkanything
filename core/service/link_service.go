@@ -14,6 +14,6 @@ func NewLinkService(linkRepository port.LinkRepository) *LinkService {
 
 }
 
-func (s LinkService) Create(link domain.Link) domain.Link {
+func (s LinkService) Create(link domain.Link) (domain.Link, error) {
 	return s.linkRepository.Create(link)
 }

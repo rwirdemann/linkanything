@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -17,13 +16,15 @@ type PostgresRepository struct {
 func NewPostgresRepository() *PostgresRepository {
 	c, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	return &PostgresRepository{connection: c}
 }
 
-func (n PostgresRepository) Create(link domain.Link) domain.Link {
-	log.Printf("%v", link)
-	return link
+func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
+	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri) values($1, $2)", link.Title, link.URI)
+	if err != nil {
+		return domain.Link{}, err
+	}
+	return link, nil
 }

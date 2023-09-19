@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/rwirdemann/linkanything/core/domain"
@@ -32,9 +33,14 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		n := h.repository.Create(link)
+		l, err := h.repository.Create(link)
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		url := request.URL.String()
-		writer.Header().Set("Location", fmt.Sprintf("%s/%d", url, n.Id))
+		writer.Header().Set("Location", fmt.Sprintf("%s/%d", url, l.Id))
 		writer.WriteHeader(http.StatusCreated)
 	}
 }

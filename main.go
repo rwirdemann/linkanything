@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"github.com/rwirdemann/linkanything/adapter"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	"github.com/rwirdemann/linkanything/adapter"
+	"github.com/rwirdemann/linkanything/core/service"
 )
 
 func main() {
@@ -16,10 +18,13 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	linkRepository := adapter.NewLinkRepository()
-	linkAdapter := adapter.NewLinkHandler(linkRepository)
+	linkRepository := adapter.NewPostgresRepository()
+	linkService := service.NewLinkService(linkRepository)
+	linkAdapter := adapter.NewHTTPHandler(linkService)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")
+	log.Printf("starting server on port %s", os.Getenv("PORT"))
 	err = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
 		met, _ := route.GetMethods()

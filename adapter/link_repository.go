@@ -3,9 +3,10 @@ package adapter
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx"
-	"github.com/rwirdemann/linkanything/domain"
 	"os"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/rwirdemann/linkanything/domain"
 )
 
 type LinkRepository struct {

@@ -21,6 +21,7 @@ func NewHTTPHandler(service port.LinkService) *HTTPHandler {
 
 func (h HTTPHandler) Create() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		enableCors(&writer)
 		b, err := io.ReadAll(request.Body)
 		if err != nil || len(b) == 0 {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -47,6 +48,7 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 
 func (h HTTPHandler) GetLinks() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		enableCors(&writer)
 		links, err := h.service.GetLinks()
 		if err != nil {
 			log.Print(err)
@@ -63,4 +65,8 @@ func (h HTTPHandler) GetLinks() http.HandlerFunc {
 
 		writer.Write(b)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

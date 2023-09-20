@@ -12,11 +12,11 @@ import (
 )
 
 type HTTPHandler struct {
-	repository port.LinkRepository
+	service port.LinkService
 }
 
 func NewHTTPHandler(service port.LinkService) *HTTPHandler {
-	return &HTTPHandler{repository: service}
+	return &HTTPHandler{service: service}
 }
 
 func (h HTTPHandler) Create() http.HandlerFunc {
@@ -33,7 +33,7 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		l, err := h.repository.Create(link)
+		l, err := h.service.Create(link)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -42,5 +42,25 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 		url := request.URL.String()
 		writer.Header().Set("Location", fmt.Sprintf("%s/%d", url, l.Id))
 		writer.WriteHeader(http.StatusCreated)
+	}
+}
+
+func (h HTTPHandler) GetLinks() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		links, err := h.service.GetLinks()
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		b, err := json.Marshal(links)
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		writer.Write(b)
 	}
 }

@@ -56,13 +56,19 @@ func (h HTTPHandler) GetLinks() http.HandlerFunc {
 			return
 		}
 
-		b, err := json.Marshal(links)
+		b, err := json.Marshal(
+			struct {
+				Links []domain.Link `json:"links"`
+			}{
+				links,
+			},
+		)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
+		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(b)
 	}
 }

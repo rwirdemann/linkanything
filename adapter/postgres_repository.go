@@ -30,7 +30,7 @@ func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
 }
 
 func (r PostgresRepository) GetLinks() ([]domain.Link, error) {
-	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created from links order by created")
+	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created from links order by created desc")
 	if err != nil {
 		return []domain.Link{}, err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,5 +36,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
+
+	tls := flag.Bool("tls", true, "use tls")
+	flag.Parse()
+	if *tls {
+		err = http.ListenAndServeTLS(
+			fmt.Sprintf(":%s", os.Getenv("PORT")),
+			os.Getenv("SSH_PUBLIC_KEY"),
+			os.Getenv("SSH_PRIVATE_KEY"),
+			router)
+	} else {
+		err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }

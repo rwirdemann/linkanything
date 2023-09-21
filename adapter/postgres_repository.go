@@ -28,3 +28,22 @@ func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
 	}
 	return link, nil
 }
+
+func (r PostgresRepository) GetLinks() ([]domain.Link, error) {
+	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created from links order by created")
+	if err != nil {
+		return []domain.Link{}, err
+	}
+	defer rows.Close()
+
+	var links []domain.Link
+	for rows.Next() {
+		var l domain.Link
+		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created)
+		if err != nil {
+			return []domain.Link{}, err
+		}
+		links = append(links, l)
+	}
+	return links, nil
+}

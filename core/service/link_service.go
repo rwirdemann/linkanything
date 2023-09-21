@@ -1,8 +1,6 @@
 package service
 
 import (
-	"time"
-
 	"github.com/rwirdemann/linkanything/core/domain"
 	"github.com/rwirdemann/linkanything/core/port"
 )
@@ -21,9 +19,5 @@ func (s LinkService) Create(link domain.Link) (domain.Link, error) {
 }
 
 func (s LinkService) GetLinks() ([]domain.Link, error) {
-	links := []domain.Link{
-		{Id: 1, Title: "Cold Hawaii Games 20233", URI: "https://coldhawaiigames.com", Created: time.Now()},
-		{Id: 2, Title: "Test: Vayu Aura 2", URI: "https://gleiten.tv/index.php/video/action/view/v/4326/page/530/", Created: time.Now()},
-	}
-	return links, nil
+	return s.linkRepository.GetLinks()
 }

@@ -8,4 +8,5 @@ type Link struct {
 	URI     string    `json:"uri"`
 	Tags    []string  `json:"tags"`
 	Created time.Time `json:"created"`
+	Draft   bool
 }

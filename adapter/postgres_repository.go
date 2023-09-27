@@ -22,7 +22,7 @@ func NewPostgresRepository() *PostgresRepository {
 }
 
 func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
-	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri) values($1, $2)", link.Title, link.URI)
+	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,created) values($1, $2, $3)", link.Title, link.URI, link.Created)
 	if err != nil {
 		return domain.Link{}, err
 	}

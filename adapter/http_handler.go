@@ -34,6 +34,7 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 			return
 		}
 
+		link.Draft = false
 		l, err := h.service.Create(link)
 		if err != nil {
 			log.Print(err)

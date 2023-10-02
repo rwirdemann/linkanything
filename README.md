@@ -5,8 +5,10 @@ Provides news streams about anything.
 ## Endpoints
 
 ### Create Link
-```json
+```
 POST https://{{HOST}}/links HTTP/1.1
+```
+```json
 content-type: application/json
 
 {
@@ -17,8 +19,10 @@ content-type: application/json
 ```
 
 ### Get Links
-```json
+```
 GET https://{{HOST}}/links
+```
+```json
 {
   "links": [
     {

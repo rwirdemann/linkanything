@@ -7,6 +7,6 @@ type Link struct {
 	Title   string    `json:"title"`
 	URI     string    `json:"uri"`
 	Tags    []string  `json:"tags"`
-	Created time.Time `json:"created"`
+	Created time.Time `json:"created,omitempty"`
 	Draft   bool
 }

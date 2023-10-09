@@ -30,16 +30,20 @@ func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
 }
 
 func (r PostgresRepository) GetLinks() ([]domain.Link, error) {
-	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created from links order by created desc")
+	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
 	if err != nil {
 		return []domain.Link{}, err
 	}
 	defer rows.Close()
 
 	var links []domain.Link
+	var tags string
 	for rows.Next() {
 		var l domain.Link
-		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created)
+		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created, &tags)
+		if len(tags) > 0 {
+			l.Tags = strings.Split(tags, ",")
+		}
 		if err != nil {
 			return []domain.Link{}, err
 		}

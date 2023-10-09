@@ -2,11 +2,11 @@ package adapter
 
 import (
 	"context"
-	"log"
-	"os"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/rwirdemann/linkanything/core/domain"
+	"log"
+	"os"
+	"strings"
 )
 
 type PostgresRepository struct {
@@ -22,7 +22,7 @@ func NewPostgresRepository() *PostgresRepository {
 }
 
 func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
-	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,draft) values($1, $2, $3)", link.Title, link.URI, link.Draft)
+	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(link.Tags, ","))
 	if err != nil {
 		return domain.Link{}, err
 	}

@@ -74,6 +74,34 @@ func (h HTTPHandler) GetLinks() http.HandlerFunc {
 	}
 }
 
+func (h HTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		enableCors(&writer)
+		tags, err := h.service.GetTags()
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		b, err := json.Marshal(
+			struct {
+				Tags []string `json:"tags"`
+			}{
+				tags,
+			},
+		)
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Write(b)
+	}
+
+}
+
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

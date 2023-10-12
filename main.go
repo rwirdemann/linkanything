@@ -26,6 +26,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.GetLinks()).Methods("GET")
+	router.HandleFunc("/tags", linkAdapter.GetTags()).Methods("GET")
 	log.Printf("starting server on port %s", os.Getenv("PORT"))
 	err = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()

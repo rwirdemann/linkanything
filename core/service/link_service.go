@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/rwirdemann/linkanything/core/domain"
 	"github.com/rwirdemann/linkanything/core/port"
-	"go.jhphx.com/btmn-backend/array"
 )
 
 type LinkService struct {
@@ -32,10 +31,19 @@ func (s LinkService) GetTags() ([]string, error) {
 	var tags []string
 	for _, l := range links {
 		for _, t := range l.Tags {
-			if !array.Contains(tags, t) {
+			if !contains(tags, t) {
 				tags = append(tags, t)
 			}
 		}
 	}
 	return tags, nil
+}
+
+func contains(a []string, e string) bool {
+	for _, v := range a {
+		if e == v {
+			return true
+		}
+	}
+	return false
 }

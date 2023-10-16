@@ -104,6 +104,7 @@ func (h HTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
 
 func (h HTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		enableCors(&writer)
 		token, err := generateJWT()
 		if err != nil {
 			log.Print(err)

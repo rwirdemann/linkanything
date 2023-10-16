@@ -4,4 +4,4 @@ build-linux:
 deploy: build-linux
 	ssh wingfoilnews@95.217.180.178 "pkill linkanything"
 	scp bin/linkanything wingfoilnews@95.217.180.178:~/linkanything
-	ssh wingfoilnews@95.217.180.178 "sh -c 'nohup ~/linkanything > /dev/null 2>&1 &'"
+	ssh wingfoilnews@95.217.180.178 "sh -c 'nohup ~/linkanything > linkanything.out 2>&1 &'"

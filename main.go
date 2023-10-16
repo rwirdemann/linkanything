@@ -24,6 +24,7 @@ func main() {
 	linkAdapter := adapter.NewHTTPHandler(linkService)
 
 	router := mux.NewRouter()
+	router.HandleFunc("/login", linkAdapter.Login()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.GetLinks()).Methods("GET")
 	router.HandleFunc("/tags", linkAdapter.GetTags()).Methods("GET")

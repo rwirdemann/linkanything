@@ -29,9 +29,18 @@ func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
 	return link, nil
 }
 
-func (r PostgresRepository) GetLinks() ([]domain.Link, error) {
+func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {
 	log.Println("GetLinks: Before Query")
-	rows, err := r.connection.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
+
+	var rows pgx.Rows
+	var err error
+	if len(tagList) > 0 {
+		rows, err = r.connection.Query(context.Background(),
+			"select id, title, uri, created, tags from links where tags like $1 order by created desc", "%"+tagList[0]+"%")
+	} else {
+		rows, err = r.connection.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
+	}
+
 	if err != nil {
 		return []domain.Link{}, err
 	}

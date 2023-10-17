@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/rwirdemann/linkanything/core/domain"
 	"github.com/rwirdemann/linkanything/core/port"
@@ -50,7 +51,15 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 func (h HTTPHandler) GetLinks() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
-		links, err := h.service.GetLinks()
+
+		// extract tags from request
+		tags := request.URL.Query().Get("tags")
+		var tagList []string
+		if len(tags) > 0 {
+			tagList = trim(strings.Split(tags, ","))
+		}
+
+		links, err := h.service.GetLinks(tagList)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -72,6 +81,14 @@ func (h HTTPHandler) GetLinks() http.HandlerFunc {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(b)
 	}
+}
+
+func trim(tags []string) []string {
+	var result []string
+	for _, t := range tags {
+		result = append(result, strings.TrimSpace(t))
+	}
+	return result
 }
 
 func (h HTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {

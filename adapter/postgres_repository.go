@@ -22,11 +22,19 @@ func NewPostgresRepository() *PostgresRepository {
 }
 
 func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
-	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(link.Tags, ","))
+	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
 	if err != nil {
 		return domain.Link{}, err
 	}
 	return link, nil
+}
+
+func lower(tags []string) []string {
+	var result []string
+	for _, t := range tags {
+		result = append(result, strings.ToLower(t))
+	}
+	return result
 }
 
 func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {

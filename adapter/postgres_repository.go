@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5"
 	"github.com/rwirdemann/linkanything/core/domain"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )
@@ -38,8 +38,6 @@ func lower(tags []string) []string {
 }
 
 func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {
-	log.Println("GetLinks: Before Query")
-
 	var rows pgx.Rows
 	var err error
 	if len(tagList) > 0 {
@@ -50,10 +48,15 @@ func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {
 	}
 
 	if err != nil {
+		log.Error(err)
 		return []domain.Link{}, err
 	}
 	defer rows.Close()
-	log.Printf("GetLinks: After Query")
+
+	if rows.Err() != nil {
+		log.Error(err)
+		return []domain.Link{}, err
+	}
 
 	var links []domain.Link
 	var tags string

@@ -145,6 +145,13 @@ func (h HTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+func (h HTTPHandler) Logout() func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		enableCors(&writer)
+		writer.WriteHeader(http.StatusNoContent)
+	}
+}
+
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

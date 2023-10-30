@@ -9,3 +9,11 @@ CREATE TABLE links
 
 ALTER TABLE links ADD COLUMN "draft" BOOLEAN DEFAULT FALSE;
 ALTER TABLE links ALTER COLUMN "tags" SET DEFAULT '';
+
+CREATE TABLE users
+(
+    id       serial PRIMARY KEY,
+    name    VARCHAR(255) NOT NULL,
+    password      VARCHAR(255) NOT NULL,
+    created  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

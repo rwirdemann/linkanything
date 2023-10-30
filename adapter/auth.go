@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
 )
@@ -19,4 +20,14 @@ func generateJWT() (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

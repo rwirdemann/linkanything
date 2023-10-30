@@ -13,7 +13,7 @@ type PostgresLinkRepository struct {
 	dbpool *pgxpool.Pool
 }
 
-func NewPostgresRepository(dbpool *pgxpool.Pool) *PostgresLinkRepository {
+func NewPostgresLinkRepository(dbpool *pgxpool.Pool) *PostgresLinkRepository {
 	return &PostgresLinkRepository{dbpool: dbpool}
 }
 

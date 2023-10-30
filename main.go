@@ -28,11 +28,16 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	linkRepository := adapter.NewPostgresRepository(dbpool)
+	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
-	linkAdapter := adapter.NewHTTPHandler(linkService)
+	linkAdapter := adapter.NewLinkHTTPHandler(linkService)
+
+	userRepoitory := adapter.NewPostgresUserRepository(dbpool)
+	userService := service.NewUserService(userRepoitory)
+	userAdapter := adapter.NewUserHTTPHandler(userService)
 
 	router := mux.NewRouter()
+	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")
 	router.HandleFunc("/login", linkAdapter.Login()).Methods("POST")
 	router.HandleFunc("/logout", linkAdapter.Logout()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")

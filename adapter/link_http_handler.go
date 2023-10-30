@@ -12,15 +12,15 @@ import (
 	"github.com/rwirdemann/linkanything/core/port"
 )
 
-type HTTPHandler struct {
+type LinkHTTPHandler struct {
 	service port.LinkService
 }
 
-func NewHTTPHandler(service port.LinkService) *HTTPHandler {
-	return &HTTPHandler{service: service}
+func NewLinkHTTPHandler(service port.LinkService) *LinkHTTPHandler {
+	return &LinkHTTPHandler{service: service}
 }
 
-func (h HTTPHandler) Create() http.HandlerFunc {
+func (h LinkHTTPHandler) Create() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		b, err := io.ReadAll(request.Body)
@@ -48,7 +48,7 @@ func (h HTTPHandler) Create() http.HandlerFunc {
 	}
 }
 
-func (h HTTPHandler) GetLinks() http.HandlerFunc {
+func (h LinkHTTPHandler) GetLinks() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 
@@ -91,7 +91,7 @@ func trim(tags []string) []string {
 	return result
 }
 
-func (h HTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
+func (h LinkHTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		tags, err := h.service.GetTags()
@@ -119,7 +119,7 @@ func (h HTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
 
 }
 
-func (h HTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
+func (h LinkHTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		token, err := generateJWT()
@@ -145,7 +145,7 @@ func (h HTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
 	}
 }
 
-func (h HTTPHandler) Logout() func(http.ResponseWriter, *http.Request) {
+func (h LinkHTTPHandler) Logout() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		writer.WriteHeader(http.StatusNoContent)

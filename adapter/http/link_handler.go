@@ -1,4 +1,4 @@
-package adapter
+package http
 
 import (
 	"encoding/json"
@@ -12,15 +12,15 @@ import (
 	"github.com/rwirdemann/linkanything/core/port"
 )
 
-type LinkHTTPHandler struct {
+type LinkHandler struct {
 	service port.LinkService
 }
 
-func NewLinkHTTPHandler(service port.LinkService) *LinkHTTPHandler {
-	return &LinkHTTPHandler{service: service}
+func NewLinkHandler(service port.LinkService) *LinkHandler {
+	return &LinkHandler{service: service}
 }
 
-func (h LinkHTTPHandler) Create() http.HandlerFunc {
+func (h LinkHandler) Create() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		b, err := io.ReadAll(request.Body)
@@ -48,7 +48,7 @@ func (h LinkHTTPHandler) Create() http.HandlerFunc {
 	}
 }
 
-func (h LinkHTTPHandler) GetLinks() http.HandlerFunc {
+func (h LinkHandler) GetLinks() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 
@@ -91,7 +91,7 @@ func trim(tags []string) []string {
 	return result
 }
 
-func (h LinkHTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
+func (h LinkHandler) GetTags() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		tags, err := h.service.GetTags()
@@ -119,7 +119,7 @@ func (h LinkHTTPHandler) GetTags() func(http.ResponseWriter, *http.Request) {
 
 }
 
-func (h LinkHTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
+func (h LinkHandler) Login() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		token, err := generateJWT()
@@ -145,13 +145,9 @@ func (h LinkHTTPHandler) Login() func(http.ResponseWriter, *http.Request) {
 	}
 }
 
-func (h LinkHTTPHandler) Logout() func(http.ResponseWriter, *http.Request) {
+func (h LinkHandler) Logout() func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
 		writer.WriteHeader(http.StatusNoContent)
 	}
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

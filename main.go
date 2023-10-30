@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	http2 "github.com/rwirdemann/linkanything/adapter/http"
 	"log"
 	"net/http"
 	"os"
@@ -30,11 +31,11 @@ func main() {
 
 	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
-	linkAdapter := adapter.NewLinkHTTPHandler(linkService)
+	linkAdapter := http2.NewLinkHandler(linkService)
 
 	userRepoitory := adapter.NewPostgresUserRepository(dbpool)
 	userService := service.NewUserService(userRepoitory)
-	userAdapter := adapter.NewUserHTTPHandler(userService)
+	userAdapter := http2.NewUserHTTPHandler(userService)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")

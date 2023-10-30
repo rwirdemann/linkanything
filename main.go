@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +21,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	linkRepository := adapter.NewPostgresRepository()
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	linkRepository := adapter.NewPostgresRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
 	linkAdapter := adapter.NewHTTPHandler(linkService)
 

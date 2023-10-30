@@ -3,26 +3,22 @@ package adapter
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rwirdemann/linkanything/core/domain"
 	log "github.com/sirupsen/logrus"
-	"os"
 	"strings"
 )
 
 type PostgresRepository struct {
-	connection *pgx.Conn
+	dbpool *pgxpool.Pool
 }
 
-func NewPostgresRepository() *PostgresRepository {
-	c, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &PostgresRepository{connection: c}
+func NewPostgresRepository(dbpool *pgxpool.Pool) *PostgresRepository {
+	return &PostgresRepository{dbpool: dbpool}
 }
 
 func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
-	_, err := r.connection.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
+	_, err := r.dbpool.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
 	if err != nil {
 		return domain.Link{}, err
 	}
@@ -41,10 +37,10 @@ func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {
 	var rows pgx.Rows
 	var err error
 	if len(tagList) > 0 {
-		rows, err = r.connection.Query(context.Background(),
+		rows, err = r.dbpool.Query(context.Background(),
 			"select id, title, uri, created, tags from links where tags like $1 order by created desc", "%"+tagList[0]+"%")
 	} else {
-		rows, err = r.connection.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
+		rows, err = r.dbpool.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
 	}
 
 	if err != nil {

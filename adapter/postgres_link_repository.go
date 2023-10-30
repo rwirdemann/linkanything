@@ -9,15 +9,15 @@ import (
 	"strings"
 )
 
-type PostgresRepository struct {
+type PostgresLinkRepository struct {
 	dbpool *pgxpool.Pool
 }
 
-func NewPostgresRepository(dbpool *pgxpool.Pool) *PostgresRepository {
-	return &PostgresRepository{dbpool: dbpool}
+func NewPostgresRepository(dbpool *pgxpool.Pool) *PostgresLinkRepository {
+	return &PostgresLinkRepository{dbpool: dbpool}
 }
 
-func (r PostgresRepository) Create(link domain.Link) (domain.Link, error) {
+func (r PostgresLinkRepository) Create(link domain.Link) (domain.Link, error) {
 	_, err := r.dbpool.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
 	if err != nil {
 		return domain.Link{}, err
@@ -33,7 +33,7 @@ func lower(tags []string) []string {
 	return result
 }
 
-func (r PostgresRepository) GetLinks(tagList []string) ([]domain.Link, error) {
+func (r PostgresLinkRepository) GetLinks(tagList []string) ([]domain.Link, error) {
 	var rows pgx.Rows
 	var err error
 	if len(tagList) > 0 {

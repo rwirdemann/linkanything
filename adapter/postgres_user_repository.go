@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rwirdemann/linkanything/core/domain"
 )
@@ -15,6 +16,18 @@ func NewPostgresUserRepository(dbpool *pgxpool.Pool) *PostgresUserRepository {
 }
 
 func (r PostgresUserRepository) Create(user domain.User) (domain.User, error) {
+	rows, err := r.dbpool.Query(context.Background(), "select id from users where name=$1", user.Name)
+	if err != nil {
+		return domain.User{}, err
+	}
+	if rows.Err() != nil {
+		return domain.User{}, rows.Err()
+	}
+
+	if rows.Next() {
+		return domain.User{}, fmt.Errorf("user exists: %s", user.Name)
+	}
+
 	hash, err := hashPassword(user.Password)
 	if err != nil {
 		return domain.User{}, err

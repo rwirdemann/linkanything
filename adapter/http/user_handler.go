@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type UserHTTPHandler struct {
@@ -36,6 +37,9 @@ func (h UserHTTPHandler) Create() http.HandlerFunc {
 		u, err := h.service.Create(user)
 		if err != nil {
 			log.Print(err)
+			if strings.HasPrefix(err.Error(), "user exists") {
+				writer.WriteHeader(http.StatusConflict)
+			}
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}

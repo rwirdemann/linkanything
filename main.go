@@ -29,6 +29,8 @@ func main() {
 	}
 	defer dbpool.Close()
 
+	sessionAdapter := http2.NewSessionHandler()
+
 	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
 	linkAdapter := http2.NewLinkHandler(linkService)
@@ -39,8 +41,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")
-	router.HandleFunc("/login", linkAdapter.Login()).Methods("POST")
-	router.HandleFunc("/logout", linkAdapter.Logout()).Methods("POST")
+	router.HandleFunc("/sessions", sessionAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.GetLinks()).Methods("GET")
 	router.HandleFunc("/tags", linkAdapter.GetTags()).Methods("GET")

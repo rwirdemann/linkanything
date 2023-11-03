@@ -48,7 +48,7 @@ func (h SessionHandler) Create() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		token, err := generateJWT()
+		token, err := generateJWT(user.Name)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)

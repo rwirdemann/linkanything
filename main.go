@@ -29,8 +29,6 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	sessionAdapter := http2.NewSessionHandler()
-
 	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
 	linkAdapter := http2.NewLinkHandler(linkService)
@@ -38,6 +36,8 @@ func main() {
 	userRepoitory := adapter.NewPostgresUserRepository(dbpool)
 	userService := service.NewUserService(userRepoitory)
 	userAdapter := http2.NewUserHTTPHandler(userService)
+
+	sessionAdapter := http2.NewSessionHandler(userService)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")

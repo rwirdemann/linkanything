@@ -37,6 +37,30 @@ func TestCreate(t *testing.T) {
 	assert.True(t, link.Id != 0)
 }
 
+func TestPatch(t *testing.T) {
+	dbpool := newDbPool()
+	defer dbpool.Close()
+
+	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
+	linkService := service.NewLinkService(linkRepository)
+	link, err := linkService.Create(domain.Link{
+		Title: "Hello",
+		URI:   "https://hello.de",
+		Tags:  []string{"event"},
+		Draft: true,
+	})
+
+	err = linkService.Patch(domain.Patch{
+		Id:    link.Id,
+		Field: "draft",
+		Value: "false",
+	})
+	assert.Nil(t, err)
+
+	link, err = linkService.Get(link.Id)
+	assert.False(t, link.Draft)
+}
+
 func newDbPool() *pgxpool.Pool {
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {

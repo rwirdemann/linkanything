@@ -28,7 +28,7 @@ func (r PostgresLinkRepository) Create(link domain.Link) (domain.Link, error) {
 }
 
 func (r PostgresLinkRepository) Update(link domain.Link) (domain.Link, error) {
-	_, err := r.dbpool.Exec(context.Background(), "upate links SET (title,uri,draft,tags) = ($1, $2, $3, $4) where id=$1", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
+	_, err := r.dbpool.Exec(context.Background(), "update links SET (title,uri,draft,tags) = ($1, $2, $3, $4) where id=$5", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","), link.Id)
 	if err != nil {
 		return domain.Link{}, err
 	}

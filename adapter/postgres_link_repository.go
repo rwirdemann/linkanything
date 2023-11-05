@@ -18,7 +18,17 @@ func NewPostgresLinkRepository(dbpool *pgxpool.Pool) *PostgresLinkRepository {
 }
 
 func (r PostgresLinkRepository) Create(link domain.Link) (domain.Link, error) {
-	_, err := r.dbpool.Exec(context.Background(), "insert into links(title,uri,draft,tags) values($1, $2, $3, $4)", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
+	err := r.dbpool.QueryRow(context.Background(),
+		"insert into links(title,uri,draft,tags) values($1, $2, $3, $4) RETURNING id",
+		link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ",")).Scan(&link.Id)
+	if err != nil {
+		return domain.Link{}, err
+	}
+	return link, nil
+}
+
+func (r PostgresLinkRepository) Update(link domain.Link) (domain.Link, error) {
+	_, err := r.dbpool.Exec(context.Background(), "upate links SET (title,uri,draft,tags) = ($1, $2, $3, $4) where id=$1", link.Title, link.URI, link.Draft, strings.Join(lower(link.Tags), ","))
 	if err != nil {
 		return domain.Link{}, err
 	}
@@ -69,4 +79,14 @@ func (r PostgresLinkRepository) GetLinks(tagList []string) ([]domain.Link, error
 		links = append(links, l)
 	}
 	return links, nil
+}
+
+func (r PostgresLinkRepository) Get(id int) (domain.Link, error) {
+	var l domain.Link
+	var tags string
+	err := r.dbpool.QueryRow(context.Background(), "SELECT id, title, uri, created, tags from links where id=$1", id).Scan(&l.Id, &l.Title, &l.URI, &l.Created, &tags)
+	if len(tags) > 0 {
+		l.Tags = strings.Split(tags, ",")
+	}
+	return l, err
 }

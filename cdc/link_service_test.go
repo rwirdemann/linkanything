@@ -35,6 +35,7 @@ func TestCreate(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.True(t, link.Id != 0)
+	assert.True(t, link.Draft)
 }
 
 func TestPatch(t *testing.T) {

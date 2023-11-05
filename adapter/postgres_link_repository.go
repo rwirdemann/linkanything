@@ -43,14 +43,14 @@ func lower(tags []string) []string {
 	return result
 }
 
-func (r PostgresLinkRepository) GetLinks(tagList []string) ([]domain.Link, error) {
+func (r PostgresLinkRepository) GetLinks(tagList []string, includeDrafts bool) ([]domain.Link, error) {
 	var rows pgx.Rows
 	var err error
 	if len(tagList) > 0 {
 		rows, err = r.dbpool.Query(context.Background(),
-			"select id, title, uri, created, tags from links where tags like $1 order by created desc", "%"+tagList[0]+"%")
+			"select id, title, uri, created, tags, draft from links where tags like $1 order by created desc", "%"+tagList[0]+"%")
 	} else {
-		rows, err = r.dbpool.Query(context.Background(), "select id, title, uri, created, tags from links order by created desc")
+		rows, err = r.dbpool.Query(context.Background(), "select id, title, uri, created, tags, draft from links order by created desc")
 	}
 
 	if err != nil {
@@ -69,14 +69,16 @@ func (r PostgresLinkRepository) GetLinks(tagList []string) ([]domain.Link, error
 	for rows.Next() {
 		log.Printf("GetLinks: Adding row to return array")
 		var l domain.Link
-		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created, &tags)
+		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created, &tags, &l.Draft)
 		if len(tags) > 0 {
 			l.Tags = strings.Split(tags, ",")
 		}
 		if err != nil {
 			return []domain.Link{}, err
 		}
-		links = append(links, l)
+		if !l.Draft || includeDrafts {
+			links = append(links, l)
+		}
 	}
 	return links, nil
 }

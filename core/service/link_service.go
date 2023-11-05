@@ -19,12 +19,12 @@ func (s LinkService) Create(link domain.Link) (domain.Link, error) {
 	return s.linkRepository.Create(link)
 }
 
-func (s LinkService) GetLinks(tags []string) ([]domain.Link, error) {
-	return s.linkRepository.GetLinks(tags)
+func (s LinkService) GetLinks(tags []string, includeDrafts bool) ([]domain.Link, error) {
+	return s.linkRepository.GetLinks(tags, includeDrafts)
 }
 
 func (s LinkService) GetTags() ([]string, error) {
-	links, err := s.GetLinks(nil)
+	links, err := s.GetLinks(nil, true)
 	if err != nil {
 		return nil, err
 	}

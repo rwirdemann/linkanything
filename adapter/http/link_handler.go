@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/rwirdemann/linkanything/core/domain"
@@ -58,7 +59,17 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			tagList = trim(strings.Split(tags, ","))
 		}
 
-		links, err := h.service.GetLinks(tagList)
+		var err error
+		includeDrafts := false
+		drafts := request.URL.Query().Get("drafts")
+		if len(drafts) > 0 {
+			includeDrafts, err = strconv.ParseBool(drafts)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		links, err := h.service.GetLinks(tagList, includeDrafts)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)

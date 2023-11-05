@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/rwirdemann/linkanything/core/domain"
 	"github.com/rwirdemann/linkanything/core/port"
+	"strconv"
 )
 
 type LinkService struct {
@@ -37,6 +38,32 @@ func (s LinkService) GetTags() ([]string, error) {
 		}
 	}
 	return tags, nil
+}
+
+func (s LinkService) Patch(patch domain.Patch) error {
+	link, err := s.linkRepository.Get(patch.Id)
+	if err != nil {
+		return err
+	}
+
+	if patch.Field == "draft" {
+		b, err := strconv.ParseBool(patch.Value)
+		if err != nil {
+			return err
+		}
+		link.Draft = b
+	}
+
+	_, err = s.linkRepository.Update(link)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s LinkService) Get(id int) (domain.Link, error) {
+	return s.linkRepository.Get(id)
 }
 
 func contains(a []string, e string) bool {

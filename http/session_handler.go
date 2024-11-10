@@ -2,9 +2,9 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/rwirdemann/linkanything/adapter"
 	"github.com/rwirdemann/linkanything/core/domain"
 	"github.com/rwirdemann/linkanything/core/port"
+	"github.com/rwirdemann/linkanything/postgres"
 	"io"
 	"log"
 	"net/http"
@@ -43,7 +43,7 @@ func (h SessionHandler) Create() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		if !adapter.CheckPasswordHash(user.Password, hash) {
+		if !postgres.CheckPasswordHash(user.Password, hash) {
 			writer.WriteHeader(http.StatusForbidden)
 			return
 		}

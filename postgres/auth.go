@@ -1,4 +1,4 @@
-package adapter
+package postgres
 
 import (
 	"golang.org/x/crypto/bcrypt"

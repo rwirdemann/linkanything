@@ -5,14 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	http2 "github.com/rwirdemann/linkanything/adapter/http"
+	http3 "github.com/rwirdemann/linkanything/http"
+	"github.com/rwirdemann/linkanything/postgres"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/rwirdemann/linkanything/adapter"
 	"github.com/rwirdemann/linkanything/core/service"
 )
 
@@ -29,15 +29,15 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	linkRepository := adapter.NewPostgresLinkRepository(dbpool)
+	linkRepository := postgres.NewPostgresLinkRepository(dbpool)
 	linkService := service.NewLinkService(linkRepository)
-	linkAdapter := http2.NewLinkHandler(linkService)
+	linkAdapter := http3.NewLinkHandler(linkService)
 
-	userRepoitory := adapter.NewPostgresUserRepository(dbpool)
+	userRepoitory := postgres.NewPostgresUserRepository(dbpool)
 	userService := service.NewUserService(userRepoitory)
-	userAdapter := http2.NewUserHTTPHandler(userService)
+	userAdapter := http3.NewUserHTTPHandler(userService)
 
-	sessionAdapter := http2.NewSessionHandler(userService)
+	sessionAdapter := http3.NewSessionHandler(userService)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")

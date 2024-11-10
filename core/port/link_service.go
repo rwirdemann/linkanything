@@ -4,7 +4,7 @@ import "github.com/rwirdemann/linkanything/core/domain"
 
 type LinkService interface {
 	Create(link domain.Link) (domain.Link, error)
-	GetLinks(tags []string, includeDrafts bool) ([]domain.Link, error)
+	GetLinks(tags []string, includeDrafts bool, page, limit int) ([]domain.Link, error)
 	GetTags() ([]string, error)
 	Get(id int) (domain.Link, error)
 }

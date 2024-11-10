@@ -48,6 +48,14 @@ func (h LinkHandler) Create() http.HandlerFunc {
 	}
 }
 
+type pagination struct {
+	TotalRecords int `json:"total_record"`
+	CurrentPage  int `json:"current_page"`
+	TotalPages   int `json:"total_pages"`
+	NextPage     int `json:"next_page"`
+	PrevPage     int `json:"prev_page"`
+}
+
 func (h LinkHandler) GetLinks() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		enableCors(&writer)
@@ -69,7 +77,25 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			}
 		}
 
-		links, err := h.service.GetLinks(tagList, includeDrafts)
+		// extract page from query params
+		page := 0
+		pageParam := request.URL.Query().Get("page")
+		if len(pageParam) > 0 {
+			if p, err := strconv.Atoi(pageParam); err == nil {
+				page = p
+			}
+		}
+
+		// extract limit from query params
+		limit := 0
+		limitParam := request.URL.Query().Get("limit")
+		if len(limitParam) > 0 {
+			if l, err := strconv.Atoi(limitParam); err == nil {
+				limit = l
+			}
+		}
+
+		links, err := h.service.GetLinks(tagList, includeDrafts, page, limit)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -78,9 +104,17 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 
 		b, err := json.Marshal(
 			struct {
-				Links []domain.Link `json:"links"`
+				Links      []domain.Link `json:"links"`
+				Pagination pagination    `json:"pagination"`
 			}{
-				links,
+				Links: links,
+				Pagination: pagination{
+					TotalRecords: len(links),
+					CurrentPage:  page,
+					TotalPages:   0,
+					NextPage:     page + 1,
+					PrevPage:     0,
+				},
 			},
 		)
 		if err != nil {

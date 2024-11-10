@@ -3,8 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rwirdemann/linkanything/core/domain"
-	"github.com/rwirdemann/linkanything/core/port"
+	"github.com/rwirdemann/linkanything/core"
 	"io"
 	"log"
 	"net/http"
@@ -12,10 +11,10 @@ import (
 )
 
 type UserHTTPHandler struct {
-	service port.UserService
+	service *core.UserService
 }
 
-func NewUserHTTPHandler(service port.UserService) *UserHTTPHandler {
+func NewUserHTTPHandler(service *core.UserService) *UserHTTPHandler {
 	return &UserHTTPHandler{service: service}
 }
 
@@ -27,7 +26,7 @@ func (h UserHTTPHandler) Create() http.HandlerFunc {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var user domain.User
+		var user core.User
 		err = json.Unmarshal(b, &user)
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)

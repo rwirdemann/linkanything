@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rwirdemann/linkanything/core"
 	http3 "github.com/rwirdemann/linkanything/http"
 	"github.com/rwirdemann/linkanything/postgres"
 	"log"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/rwirdemann/linkanything/core/service"
 )
 
 func main() {
@@ -30,11 +30,11 @@ func main() {
 	defer dbpool.Close()
 
 	linkRepository := postgres.NewPostgresLinkRepository(dbpool)
-	linkService := service.NewLinkService(linkRepository)
+	linkService := core.NewLinkService(linkRepository)
 	linkAdapter := http3.NewLinkHandler(linkService)
 
 	userRepoitory := postgres.NewPostgresUserRepository(dbpool)
-	userService := service.NewUserService(userRepoitory)
+	userService := core.NewUserService(userRepoitory)
 	userAdapter := http3.NewUserHTTPHandler(userService)
 
 	sessionAdapter := http3.NewSessionHandler(userService)

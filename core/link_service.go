@@ -1,25 +1,23 @@
-package service
+package core
 
 import (
-	"github.com/rwirdemann/linkanything/core/domain"
-	"github.com/rwirdemann/linkanything/core/port"
 	"strconv"
 )
 
 type LinkService struct {
-	linkRepository port.LinkRepository
+	linkRepository LinkRepository
 }
 
-func NewLinkService(linkRepository port.LinkRepository) *LinkService {
+func NewLinkService(linkRepository LinkRepository) *LinkService {
 	return &LinkService{linkRepository: linkRepository}
 
 }
 
-func (s LinkService) Create(link domain.Link) (domain.Link, error) {
+func (s LinkService) Create(link Link) (Link, error) {
 	return s.linkRepository.Create(link)
 }
 
-func (s LinkService) GetLinks(tags []string, includeDrafts bool, page, limit int) ([]domain.Link, error) {
+func (s LinkService) GetLinks(tags []string, includeDrafts bool, page, limit int) ([]Link, error) {
 	return s.linkRepository.GetLinks(tags, includeDrafts, page, limit)
 }
 
@@ -40,7 +38,7 @@ func (s LinkService) GetTags() ([]string, error) {
 	return tags, nil
 }
 
-func (s LinkService) Patch(patch domain.Patch) error {
+func (s LinkService) Patch(patch Patch) error {
 	link, err := s.linkRepository.Get(patch.Id)
 	if err != nil {
 		return err
@@ -62,7 +60,7 @@ func (s LinkService) Patch(patch domain.Patch) error {
 	return nil
 }
 
-func (s LinkService) Get(id int) (domain.Link, error) {
+func (s LinkService) Get(id int) (Link, error) {
 	return s.linkRepository.Get(id)
 }
 

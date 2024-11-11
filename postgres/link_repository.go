@@ -2,19 +2,18 @@ package postgres
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rwirdemann/linkanything/core"
-	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
 type LinkRepository struct {
-	dbpool *pgxpool.Pool
+	dbpool  *pgxpool.Pool
+	queries *Queries
 }
 
 func NewPostgresLinkRepository(dbpool *pgxpool.Pool) *LinkRepository {
-	return &LinkRepository{dbpool: dbpool}
+	return &LinkRepository{dbpool: dbpool, queries: New(dbpool)}
 }
 
 func (r LinkRepository) Create(link core.Link) (core.Link, error) {
@@ -44,49 +43,32 @@ func lower(tags []string) []string {
 }
 
 func (r LinkRepository) GetLinks(tagList []string, includeDrafts bool, page, limit int) ([]core.Link, error) {
-	var rows pgx.Rows
-	var err error
-	if len(tagList) > 0 {
-		if page > 0 && limit > 0 {
-			rows, err = r.dbpool.Query(context.Background(),
-				"select id, title, uri, created, tags, draft from links where tags like $1 order by created desc limit $2 offset $3", "%"+tagList[0]+"%", limit, (page-1)*limit)
-		} else {
-			rows, err = r.dbpool.Query(context.Background(),
-				"select id, title, uri, created, tags, draft from links where tags like $1 order by created desc", "%"+tagList[0]+"%")
-		}
-	} else {
-		if page > 0 && limit > 0 {
-			rows, err = r.dbpool.Query(context.Background(),
-				"select id, title, uri, created, tags, draft from links order by created desc limit $1 offset $2", limit, (page-1)*limit)
-		} else {
-			rows, err = r.dbpool.Query(context.Background(),
-				"select id, title, uri, created, tags, draft from links order by created desc")
-		}
+	offset := 0
+	if page > 0 && limit > 0 {
+		offset = (page - 1) * limit
+	}
+	if limit == 0 {
+		limit = 1000
 	}
 
+	rows, err := r.queries.GetLinks(context.Background(), GetLinksParams{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
 	if err != nil {
-		log.Error(err)
-		return []core.Link{}, err
-	}
-	defer rows.Close()
-
-	if rows.Err() != nil {
-		log.Error(err)
 		return []core.Link{}, err
 	}
 
 	var links []core.Link
-	var tags string
-	for rows.Next() {
-		log.Printf("GetLinks: Adding row to return array")
+	for _, row := range rows {
 		var l core.Link
-		err := rows.Scan(&l.Id, &l.Title, &l.URI, &l.Created, &tags, &l.Draft)
-		if len(tags) > 0 {
-			l.Tags = strings.Split(tags, ",")
+		if len(row.Tags.String) > 0 {
+			l.Tags = strings.Split(row.Tags.String, ",")
 		}
-		if err != nil {
-			return []core.Link{}, err
-		}
+		l.Id = int(row.ID)
+		l.Created = row.Created.Time
+		l.URI = row.Uri
+		l.Title = row.Title
 		if !l.Draft || includeDrafts {
 			links = append(links, l)
 		}

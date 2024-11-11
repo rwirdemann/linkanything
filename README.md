@@ -52,3 +52,11 @@ GET https://{{HOST}}/links[?page=1&limit=20]
   }
 }
 ```
+
+## Development
+
+Install sqlc
+
+```
+brew install sqlc
+```

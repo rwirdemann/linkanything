@@ -12,7 +12,7 @@ import (
 )
 
 const getLinks = `-- name: GetLinks :many
-select l.Id, l.title, l.uri, l.created, l.draft, tag.name
+select distinct l.Id, l.title, l.uri, l.created, l.draft
 from links l
          left join public.tags_links tl on l.id = tl.link_id
          left join public.tags tag on tag.id = tl.tag_id
@@ -33,7 +33,6 @@ type GetLinksRow struct {
 	Uri     string
 	Created pgtype.Timestamptz
 	Draft   pgtype.Bool
-	Name    pgtype.Text
 }
 
 func (q *Queries) GetLinks(ctx context.Context, arg GetLinksParams) ([]GetLinksRow, error) {
@@ -51,7 +50,6 @@ func (q *Queries) GetLinks(ctx context.Context, arg GetLinksParams) ([]GetLinksR
 			&i.Uri,
 			&i.Created,
 			&i.Draft,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}

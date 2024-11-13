@@ -1,5 +1,5 @@
 -- name: GetLinks :many
-select l.Id, l.title, l.uri, l.created, l.draft, tag.name
+select distinct l.Id, l.title, l.uri, l.created, l.draft
 from links l
          left join public.tags_links tl on l.id = tl.link_id
          left join public.tags tag on tag.id = tl.tag_id

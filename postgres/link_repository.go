@@ -60,30 +60,21 @@ func (r LinkRepository) GetLinks(tagList []string, includeDrafts bool, page, lim
 		return []core.Link{}, err
 	}
 
-	var links = make(map[int]core.Link)
+	if len(rows) == 0 {
+		return []core.Link{}, nil
+	}
+
+	var links []core.Link
 	for _, row := range rows {
-		var link core.Link
-		if l, ok := links[int(row.ID)]; ok {
-			link = l
-			if row.Name.String != "" {
-				link.Tags = append(link.Tags, row.Name.String)
-			}
-		} else {
-			link.Id = int(row.ID)
-			link.Created = row.Created.Time
-			link.URI = row.Uri
-			link.Title = row.Title
-			if row.Name.String != "" {
-				link.Tags = append(link.Tags, row.Name.String)
-			}
-		}
-		links[int(row.ID)] = link
+		links = append(links, core.Link{
+			Id:      int(row.ID),
+			Title:   row.Title,
+			URI:     row.Uri,
+			Created: row.Created.Time,
+			Draft:   false,
+		})
 	}
-	var result []core.Link
-	for _, l := range links {
-		result = append(result, l)
-	}
-	return result, nil
+	return links, nil
 }
 
 func (r LinkRepository) Get(id int) (core.Link, error) {

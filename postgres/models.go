@@ -17,6 +17,16 @@ type Link struct {
 	Created pgtype.Timestamptz
 }
 
+type Tag struct {
+	ID   int32
+	Name string
+}
+
+type TagsLink struct {
+	TagID  pgtype.Int4
+	LinkID pgtype.Int4
+}
+
 type User struct {
 	ID       int32
 	Name     string

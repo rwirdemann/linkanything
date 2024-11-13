@@ -12,13 +12,19 @@ import (
 )
 
 const getLinks = `-- name: GetLinks :many
-select Id, Title, uri, created, tags, draft from links
-order by created desc limit $1 offset $2
+select l.Id, l.title, l.uri, l.created, l.draft, tag.name
+from links l
+         left join public.tags_links tl on l.id = tl.link_id
+         left join public.tags tag on tag.id = tl.tag_id
+where tag.name = ANY($1::varchar[]) or $1 is NULL
+order by created desc
+limit $2 offset $3
 `
 
 type GetLinksParams struct {
-	Limit  int32
-	Offset int32
+	Column1 []string
+	Limit   int32
+	Offset  int32
 }
 
 type GetLinksRow struct {
@@ -26,12 +32,12 @@ type GetLinksRow struct {
 	Title   string
 	Uri     string
 	Created pgtype.Timestamptz
-	Tags    pgtype.Text
 	Draft   pgtype.Bool
+	Name    pgtype.Text
 }
 
 func (q *Queries) GetLinks(ctx context.Context, arg GetLinksParams) ([]GetLinksRow, error) {
-	rows, err := q.db.Query(ctx, getLinks, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getLinks, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +50,8 @@ func (q *Queries) GetLinks(ctx context.Context, arg GetLinksParams) ([]GetLinksR
 			&i.Title,
 			&i.Uri,
 			&i.Created,
-			&i.Tags,
 			&i.Draft,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}

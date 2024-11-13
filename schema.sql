@@ -15,3 +15,15 @@ CREATE TABLE users
     password VARCHAR(255) NOT NULL,
     created  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE tags
+(
+    id   serial PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tags_links
+(
+    tag_id  integer,
+    link_id integer
+);

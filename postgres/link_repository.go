@@ -52,28 +52,38 @@ func (r LinkRepository) GetLinks(tagList []string, includeDrafts bool, page, lim
 	}
 
 	rows, err := r.queries.GetLinks(context.Background(), GetLinksParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Column1: tagList,
+		Limit:   int32(limit),
+		Offset:  int32(offset),
 	})
 	if err != nil {
 		return []core.Link{}, err
 	}
 
-	var links []core.Link
+	var links = make(map[int]core.Link)
 	for _, row := range rows {
-		var l core.Link
-		if len(row.Tags.String) > 0 {
-			l.Tags = strings.Split(row.Tags.String, ",")
+		var link core.Link
+		if l, ok := links[int(row.ID)]; ok {
+			link = l
+			if row.Name.String != "" {
+				link.Tags = append(link.Tags, row.Name.String)
+			}
+		} else {
+			link.Id = int(row.ID)
+			link.Created = row.Created.Time
+			link.URI = row.Uri
+			link.Title = row.Title
+			if row.Name.String != "" {
+				link.Tags = append(link.Tags, row.Name.String)
+			}
 		}
-		l.Id = int(row.ID)
-		l.Created = row.Created.Time
-		l.URI = row.Uri
-		l.Title = row.Title
-		if !l.Draft || includeDrafts {
-			links = append(links, l)
-		}
+		links[int(row.ID)] = link
 	}
-	return links, nil
+	var result []core.Link
+	for _, l := range links {
+		result = append(result, l)
+	}
+	return result, nil
 }
 
 func (r LinkRepository) Get(id int) (core.Link, error) {

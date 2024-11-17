@@ -1,4 +1,4 @@
-package core
+package linkanything
 
 type LinkRepository interface {
 	Create(link Link) (Link, error)

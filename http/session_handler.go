@@ -2,7 +2,7 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/rwirdemann/linkanything/core"
+	"github.com/rwirdemann/linkanything"
 	"github.com/rwirdemann/linkanything/postgres"
 	"io"
 	"log"
@@ -10,10 +10,10 @@ import (
 )
 
 type SessionHandler struct {
-	repository core.UserRepository
+	repository linkanything.UserRepository
 }
 
-func NewSessionHandler(repository core.UserRepository) *SessionHandler {
+func NewSessionHandler(repository linkanything.UserRepository) *SessionHandler {
 	return &SessionHandler{repository: repository}
 }
 
@@ -27,7 +27,7 @@ func (h SessionHandler) Create() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		var user core.User
+		var user linkanything.User
 		err = json.Unmarshal(b, &user)
 		if err != nil {
 			log.Print(err)

@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rwirdemann/linkanything/core"
+	"github.com/rwirdemann/linkanything"
 	"io"
 	"log"
 	"net/http"
@@ -12,10 +12,10 @@ import (
 )
 
 type LinkHandler struct {
-	repository core.LinkRepository
+	repository linkanything.LinkRepository
 }
 
-func NewLinkHandler(repository core.LinkRepository) *LinkHandler {
+func NewLinkHandler(repository linkanything.LinkRepository) *LinkHandler {
 	return &LinkHandler{repository: repository}
 }
 
@@ -27,7 +27,7 @@ func (h LinkHandler) Create() http.HandlerFunc {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var link core.Link
+		var link linkanything.Link
 		err = json.Unmarshal(b, &link)
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -102,8 +102,8 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 
 		b, err := json.Marshal(
 			struct {
-				Links      []core.Link `json:"links"`
-				Pagination pagination  `json:"pagination"`
+				Links      []linkanything.Link `json:"links"`
+				Pagination pagination          `json:"pagination"`
 			}{
 				Links: links,
 				Pagination: pagination{

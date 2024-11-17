@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rwirdemann/linkanything/core"
+	"github.com/rwirdemann/linkanything"
 	"io"
 	"log"
 	"net/http"
@@ -11,10 +11,10 @@ import (
 )
 
 type UserHTTPHandler struct {
-	repository core.UserRepository
+	repository linkanything.UserRepository
 }
 
-func NewUserHTTPHandler(repository core.UserRepository) *UserHTTPHandler {
+func NewUserHTTPHandler(repository linkanything.UserRepository) *UserHTTPHandler {
 	return &UserHTTPHandler{repository: repository}
 }
 
@@ -26,7 +26,7 @@ func (h UserHTTPHandler) Create() http.HandlerFunc {
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var user core.User
+		var user linkanything.User
 		err = json.Unmarshal(b, &user)
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)

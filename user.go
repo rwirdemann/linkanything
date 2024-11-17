@@ -1,4 +1,4 @@
-package core
+package linkanything
 
 type User struct {
 	Id       int    `json:"id"`

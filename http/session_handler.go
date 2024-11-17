@@ -10,11 +10,11 @@ import (
 )
 
 type SessionHandler struct {
-	service *core.UserService
+	repository core.UserRepository
 }
 
-func NewSessionHandler(service *core.UserService) *SessionHandler {
-	return &SessionHandler{service: service}
+func NewSessionHandler(repository core.UserRepository) *SessionHandler {
+	return &SessionHandler{repository: repository}
 }
 
 func (h SessionHandler) Create() func(http.ResponseWriter, *http.Request) {
@@ -35,7 +35,7 @@ func (h SessionHandler) Create() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		hash, _ := h.service.GetHash(user.Name)
+		hash, _ := h.repository.GetHash(user.Name)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusForbidden)

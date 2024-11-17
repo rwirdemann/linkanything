@@ -60,10 +60,6 @@ func (r LinkRepository) GetLinks(tagList []string, includeDrafts bool, page, lim
 		return []core.Link{}, err
 	}
 
-	if len(rows) == 0 {
-		return []core.Link{}, nil
-	}
-
 	var links []core.Link
 	for _, row := range rows {
 		links = append(links, core.Link{

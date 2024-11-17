@@ -11,11 +11,11 @@ import (
 )
 
 type UserHTTPHandler struct {
-	service *core.UserService
+	repository core.UserRepository
 }
 
-func NewUserHTTPHandler(service *core.UserService) *UserHTTPHandler {
-	return &UserHTTPHandler{service: service}
+func NewUserHTTPHandler(repository core.UserRepository) *UserHTTPHandler {
+	return &UserHTTPHandler{repository: repository}
 }
 
 func (h UserHTTPHandler) Create() http.HandlerFunc {
@@ -33,7 +33,7 @@ func (h UserHTTPHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		u, err := h.service.Create(user)
+		u, err := h.repository.Create(user)
 		if err != nil {
 			log.Print(err)
 			if strings.HasPrefix(err.Error(), "user exists") {

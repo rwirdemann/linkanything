@@ -12,11 +12,11 @@ import (
 )
 
 type LinkHandler struct {
-	service *core.LinkService
+	repository core.LinkRepository
 }
 
-func NewLinkHandler(service *core.LinkService) *LinkHandler {
-	return &LinkHandler{service: service}
+func NewLinkHandler(repository core.LinkRepository) *LinkHandler {
+	return &LinkHandler{repository: repository}
 }
 
 func (h LinkHandler) Create() http.HandlerFunc {
@@ -34,7 +34,7 @@ func (h LinkHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		l, err := h.service.Create(link)
+		l, err := h.repository.Create(link)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -93,7 +93,7 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			}
 		}
 
-		links, err := h.service.GetLinks(tagList, includeDrafts, page, limit)
+		links, err := h.repository.GetLinks(tagList, includeDrafts, page, limit)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -131,31 +131,4 @@ func trim(tags []string) []string {
 		result = append(result, strings.TrimSpace(t))
 	}
 	return result
-}
-
-func (h LinkHandler) GetTags() func(http.ResponseWriter, *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		enableCors(&writer)
-		tags, err := h.service.GetTags()
-		if err != nil {
-			log.Print(err)
-			writer.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		b, err := json.Marshal(
-			struct {
-				Tags []string `json:"tags"`
-			}{
-				tags,
-			},
-		)
-		if err != nil {
-			log.Print(err)
-			writer.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		writer.Header().Set("Content-Type", "application/json")
-		writer.Write(b)
-	}
 }

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/rwirdemann/linkanything/core"
 	http3 "github.com/rwirdemann/linkanything/http"
 	"github.com/rwirdemann/linkanything/postgres"
 	"log"
@@ -30,21 +29,17 @@ func main() {
 	defer dbpool.Close()
 
 	linkRepository := postgres.NewPostgresLinkRepository(dbpool)
-	linkService := core.NewLinkService(linkRepository)
-	linkAdapter := http3.NewLinkHandler(linkService)
+	linkAdapter := http3.NewLinkHandler(linkRepository)
 
-	userRepoitory := postgres.NewPostgresUserRepository(dbpool)
-	userService := core.NewUserService(userRepoitory)
-	userAdapter := http3.NewUserHTTPHandler(userService)
-
-	sessionAdapter := http3.NewSessionHandler(userService)
+	userRepository := postgres.NewPostgresUserRepository(dbpool)
+	userAdapter := http3.NewUserHTTPHandler(userRepository)
+	sessionAdapter := http3.NewSessionHandler(userRepository)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/users", userAdapter.Create()).Methods("POST")
 	router.HandleFunc("/sessions", sessionAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.Create()).Methods("POST")
 	router.HandleFunc("/links", linkAdapter.GetLinks()).Methods("GET")
-	router.HandleFunc("/tags", linkAdapter.GetTags()).Methods("GET")
 	log.Printf("starting server on port %s", os.Getenv("PORT"))
 	err = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()

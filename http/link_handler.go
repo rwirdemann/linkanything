@@ -6,6 +6,7 @@ import (
 	"github.com/rwirdemann/linkanything"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -75,12 +76,12 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			}
 		}
 
-		// extract page from query params
-		page := 0
+		// extract currentPage from query params
+		currentPage := 0
 		pageParam := request.URL.Query().Get("page")
 		if len(pageParam) > 0 {
 			if p, err := strconv.Atoi(pageParam); err == nil {
-				page = p
+				currentPage = p
 			}
 		}
 
@@ -93,11 +94,27 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			}
 		}
 
-		links, err := h.repository.GetLinks(tagList, includeDrafts, page, limit)
+		links, err := h.repository.GetLinks(tagList, includeDrafts, currentPage, limit)
 		if err != nil {
 			log.Print(err)
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
+		}
+
+		total, err := h.repository.Count()
+		if err != nil {
+			log.Print(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		nextPage := 0
+		totalPages := 0
+		if limit > 0 {
+			totalPages = int(math.Ceil(float64(total) / float64(limit)))
+			if currentPage < totalPages {
+				nextPage = currentPage + 1
+			}
 		}
 
 		b, err := json.Marshal(
@@ -107,10 +124,10 @@ func (h LinkHandler) GetLinks() http.HandlerFunc {
 			}{
 				Links: links,
 				Pagination: pagination{
-					TotalRecords: len(links),
-					CurrentPage:  page,
-					TotalPages:   0,
-					NextPage:     page + 1,
+					TotalRecords: total,
+					CurrentPage:  currentPage,
+					TotalPages:   totalPages,
+					NextPage:     nextPage,
 					PrevPage:     0,
 				},
 			},

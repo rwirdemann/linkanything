@@ -60,3 +60,14 @@ func (q *Queries) GetLinks(ctx context.Context, arg GetLinksParams) ([]GetLinksR
 	}
 	return items, nil
 }
+
+const linkCount = `-- name: LinkCount :one
+select count(*) from links
+`
+
+func (q *Queries) LinkCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, linkCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}

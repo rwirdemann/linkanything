@@ -6,3 +6,6 @@ from links l
 where tag.name = ANY($1::varchar[]) or $1 is NULL
 order by created desc
 limit $2 offset $3;
+
+-- name: LinkCount :one
+select count(*) from links;

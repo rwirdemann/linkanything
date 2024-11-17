@@ -82,3 +82,11 @@ func (r LinkRepository) Get(id int) (linkanything.Link, error) {
 	}
 	return l, err
 }
+
+func (r LinkRepository) Count() (int, error) {
+	count, err := r.queries.LinkCount(context.Background())
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
